@@ -24,8 +24,8 @@ class RealSenseNode(Node):
         device = pipeline_profile.get_device()
 
         # For VLA, we often just need RGB at lower resolution and framerate
-        # e.g., 640x480 at 30 fps
-        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+        # e.g., 1280x720 at 30 fps
+        config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
 
         # Start streaming
         self.get_logger().info("Starting RealSense pipeline...")

@@ -34,7 +34,7 @@ This will publish the image to `/camera/color/image_raw`.
 
 ## 2. Option 2: `vla_realsense_official` (Intel's Official Wrapper)
 
-This package is a launcher wrapper around Intel's official C++ node (`realsense2_camera`). It launches the official driver but explicitly configures it for VLA by disabling the depth sensor (to save CPU) and fixing the RGB resolution to 640x480 at 30 fps.
+This package is a launcher wrapper around Intel's official C++ node (`realsense2_camera`). It launches the official driver but explicitly configures it for VLA by disabling the depth sensor (to save CPU) and fixing the RGB resolution to 1280x720 at 30 fps.
 
 **Pros:**
 - Maximum performance since the heavy lifting is done in optimized C++.

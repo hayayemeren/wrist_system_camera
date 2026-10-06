@@ -20,7 +20,7 @@ def generate_launch_description():
             'enable_infra2': 'false',
             
             # Configure RGB camera for VLA
-            'rgb_camera.profile': '640x480x30',
+            'rgb_camera.profile': '1280x720x30',
             
             # Align depth to color if you eventually enable depth
             'align_depth.enable': 'false',

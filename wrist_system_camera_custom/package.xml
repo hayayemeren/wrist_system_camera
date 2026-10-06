@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>vla_realsense_custom</name>
+  <name>wrist_system_camera_custom</name>
   <version>0.0.0</version>
-  <description>Custom Python wrapper for RealSense camera for VLA</description>
+  <description>Custom Python wrapper for RealSense camera for Wrist System Camera</description>
   <maintainer email="user@todo.todo">user</maintainer>
   <license>TODO: License declaration</license>
 

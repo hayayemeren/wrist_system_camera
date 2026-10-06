@@ -14,12 +14,12 @@ def generate_launch_description():
             os.path.join(realsense_share_dir, 'launch', 'rs_launch.py')
         ),
         launch_arguments={
-            # Disable depth if only RGB is needed for VLA, saves compute
+            # Disable depth if only RGB is needed for Wrist System Camera, saves compute
             'enable_depth': 'false',
             'enable_infra1': 'false',
             'enable_infra2': 'false',
             
-            # Configure RGB camera for VLA
+            # Configure RGB camera for Wrist System Camera
             'rgb_camera.profile': '1280x720x30',
             
             # Align depth to color if you eventually enable depth

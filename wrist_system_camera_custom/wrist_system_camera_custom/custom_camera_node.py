@@ -23,7 +23,7 @@ class RealSenseNode(Node):
         pipeline_profile = config.resolve(pipeline_wrapper)
         device = pipeline_profile.get_device()
 
-        # For VLA, we often just need RGB at lower resolution and framerate
+        # For Wrist System Camera, we often just need RGB at lower resolution and framerate
         # e.g., 1280x720 at 30 fps
         config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
 
@@ -46,7 +46,7 @@ class RealSenseNode(Node):
             # Convert images to numpy arrays
             color_image = np.asanyarray(color_frame.get_data())
 
-            # Optional: Resize for VLA models if you want to do it at the edge
+            # Optional: Resize for Wrist System Camera models if you want to do it at the edge
             # color_image = cv2.resize(color_image, (256, 256))
 
             # Convert OpenCV image to ROS Image message

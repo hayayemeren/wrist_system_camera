@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>vla_realsense_official</name>
+  <name>wrist_system_camera_official</name>
   <version>0.0.0</version>
-  <description>Wrapper around official RealSense ROS 2 node for VLA</description>
+  <description>Wrapper around official RealSense ROS 2 node for Wrist System Camera</description>
   <maintainer email="user@todo.todo">user</maintainer>
   <license>TODO: License declaration</license>
 

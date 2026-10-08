@@ -60,11 +60,16 @@ class RealSenseNode(Node):
             # Optional: Resize for Wrist System Camera models if you want to do it at the edge
             # color_image = cv2.resize(color_image, (256, 256))
 
-            # Convert OpenCV image to ROS Image message
-            # pyrealsense returns BGR format by default when using rs.format.bgr8
-            msg = self.bridge.cv2_to_imgmsg(color_image, encoding="bgr8")
+            # Convert OpenCV image to ROS Image message manually to bypass cv_bridge bug
+            msg = Image()
             msg.header.stamp = self.get_clock().now().to_msg()
             msg.header.frame_id = "camera_color_optical_frame"
+            msg.height = color_image.shape[0]
+            msg.width = color_image.shape[1]
+            msg.encoding = "bgr8"
+            msg.is_bigendian = 0
+            msg.step = color_image.shape[1] * 3
+            msg.data = color_image.tobytes()
             
             self.publisher_.publish(msg)
             

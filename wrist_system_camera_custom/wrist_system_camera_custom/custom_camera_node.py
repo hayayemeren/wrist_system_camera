@@ -69,7 +69,9 @@ class RealSenseNode(Node):
             self.publisher_.publish(msg)
             
         except Exception as e:
+            import traceback
             self.get_logger().error(f"Error reading frame: {e}")
+            self.get_logger().error(traceback.format_exc())
 
     def destroy_node(self):
         self.get_logger().info("Stopping RealSense pipeline...")

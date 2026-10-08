@@ -32,6 +32,7 @@ class RealSenseNode(Node):
 
         # For Wrist System Camera, we often just need RGB at lower resolution and framerate
         # e.g., 1280x720 at 30 fps
+        config.disable_all_streams()
         config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
 
         # Start streaming

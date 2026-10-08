@@ -62,9 +62,14 @@ class RealSenseNode(Node):
         self.frame_count = 0
         self.start_time = self.get_clock().now()
 
-    def frame_callback(self, frames):
+    def frame_callback(self, frame):
         try:
-            color_frame = frames.get_color_frame()
+            if frame.is_frameset():
+                frameset = frame.as_frameset()
+                color_frame = frameset.get_color_frame()
+            else:
+                color_frame = frame.as_video_frame()
+                
             if not color_frame:
                 return
 

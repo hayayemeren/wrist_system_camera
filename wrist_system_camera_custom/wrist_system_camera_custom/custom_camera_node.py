@@ -33,7 +33,7 @@ class RealSenseNode(Node):
         # For Wrist System Camera, we often just need RGB at lower resolution and framerate
         # e.g., 1280x720 at 30 fps
         config.disable_all_streams()
-        config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
+        config.enable_stream(rs.stream.color, 1280, 720, rs.format.rgb8, 30)
 
         # Start streaming
         self.get_logger().info("Starting RealSense pipeline...")
@@ -87,7 +87,7 @@ class RealSenseNode(Node):
                 msg.header.frame_id = "camera_color_optical_frame"
                 msg.height = color_image.shape[0]
                 msg.width = color_image.shape[1]
-                msg.encoding = "bgr8"
+                msg.encoding = "rgb8"
                 msg.is_bigendian = 0
                 msg.step = color_image.shape[1] * 3
                 msg.data = color_image.tobytes()

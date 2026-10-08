@@ -89,7 +89,7 @@ class RealSenseNode(Node):
             msg.step = color_image.shape[1] * 3
             msg.data = color_image.tobytes()
             
-            self.publisher_.publish(msg)
+            # self.publisher_.publish(msg)  # <-- COMMENTED OUT FOR TESTING
             
             # Calculate and log internal FPS every 30 frames
             self.frame_count += 1

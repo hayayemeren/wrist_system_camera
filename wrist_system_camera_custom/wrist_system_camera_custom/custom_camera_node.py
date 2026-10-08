@@ -35,12 +35,24 @@ class RealSenseNode(Node):
         # Otherwise, RealSense drops the framerate in low-light environments.
         try:
             device = profile.get_device()
+            
+            # Check and log USB type (RealSense is very picky about USB 3.0 vs 2.1)
+            if device.supports(rs.camera_info.usb_type_descriptor):
+                usb_type = device.get_info(rs.camera_info.usb_type_descriptor)
+                self.get_logger().info(f"RealSense connected via USB: {usb_type}")
+                if "2." in usb_type:
+                    self.get_logger().warn("WARNING: Camera is on USB 2.x! 1280x720 @ 30FPS requires USB 3.0. You will get massive frame drops.")
+
             for sensor in device.query_sensors():
                 if sensor.supports(rs.option.auto_exposure_priority):
                     sensor.set_option(rs.option.auto_exposure_priority, 0)
                     self.get_logger().info("Disabled auto-exposure priority.")
         except Exception as e:
-            self.get_logger().warn(f"Could not disable auto-exposure priority: {e}")
+            self.get_logger().warn(f"Could not configure device: {e}")
+
+        # FPS tracking
+        self.frame_count = 0
+        self.start_time = self.get_clock().now()
 
         # Timer to read and publish frames
         # 30 fps = 1/30 seconds ~ 0.0333
@@ -73,6 +85,14 @@ class RealSenseNode(Node):
             
             self.publisher_.publish(msg)
             
+            # Calculate and log internal FPS every 30 frames
+            self.frame_count += 1
+            if self.frame_count % 30 == 0:
+                now = self.get_clock().now()
+                elapsed = (now - self.start_time).nanoseconds / 1e9
+                self.get_logger().info(f"Internal capture rate: {30 / elapsed:.2f} FPS")
+                self.start_time = now
+                
         except Exception as e:
             import traceback
             self.get_logger().error(f"Error reading frame: {e}")

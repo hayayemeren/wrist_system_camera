@@ -6,6 +6,7 @@ from cv_bridge import CvBridge
 import pyrealsense2 as rs
 import numpy as np
 import cv2
+import array
 import threading
 
 class RealSenseNode(Node):
@@ -95,7 +96,10 @@ class RealSenseNode(Node):
             msg.encoding = "bgr8"
             msg.is_bigendian = 0
             msg.step = 1280 * 3
-            msg.data = bgr_image.tobytes()
+            
+            # Use array.array to bypass ROS 2 Python's horrible 'assert all()' setter loop!
+            # Assigning raw bytes triggers a python loop over 2.7M elements taking 900ms.
+            msg.data = array.array('B', bgr_image.tobytes())
             t3 = self.get_clock().now()
             
             self.publisher_.publish(msg)

@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 from cv_bridge import CvBridge
 import pyrealsense2 as rs
 import numpy as np
@@ -10,8 +11,13 @@ class RealSenseNode(Node):
     def __init__(self):
         super().__init__('custom_realsense_node')
         
-        # Publisher for RGB image
-        self.publisher_ = self.create_publisher(Image, '/camera/color/image_raw', 10)
+        # Publisher for RGB image with Best Effort QoS to prevent thread blocking
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1
+        )
+        self.publisher_ = self.create_publisher(Image, '/camera/color/image_raw', qos_profile)
         self.bridge = CvBridge()
         
         # Configure depth and color streams

@@ -74,10 +74,12 @@ class RealSenseNode(Node):
                 return
 
             # Get raw YUYV buffer from RealSense (instant, no software conversion overhead!)
-            raw_data = np.asanyarray(color_frame.get_data(), dtype=np.uint8)
+            # PyRealSense returns YUYV as 16-bit elements. We must use .view(np.uint8) to get the raw bytes.
+            raw_data = np.asanyarray(color_frame.get_data())
+            raw_data_bytes = raw_data.view(np.uint8)
             
-            # PyRealSense returns a flat array for YUYV, reshape it to (height, width, 2 channels)
-            yuyv_image = raw_data.reshape((720, 1280, 2))
+            # Now reshape to (height, width, 2 channels)
+            yuyv_image = raw_data_bytes.reshape((720, 1280, 2))
             
             # Use OpenCV's NEON-optimized conversion to BGR (takes <10ms on Pi)
             bgr_image = cv2.cvtColor(yuyv_image, cv2.COLOR_YUV2BGR_YUYV)

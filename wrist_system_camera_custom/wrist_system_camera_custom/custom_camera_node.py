@@ -33,7 +33,7 @@ class RealSenseNode(Node):
         # For Wrist System Camera, we often just need RGB at lower resolution and framerate
         # e.g., 1280x720 at 30 fps
         config.disable_all_streams()
-        config.enable_stream(rs.stream.color, 1280, 720, rs.format.rgb8, 30)
+        config.enable_stream(rs.stream.color, 1280, 720, rs.format.yuyv, 30)
 
         # Start streaming with asynchronous callback (fastest method on Pi)
         self.get_logger().info("Starting RealSense pipeline...")
@@ -73,24 +73,27 @@ class RealSenseNode(Node):
             if not color_frame:
                 return
 
-            # Convert images to numpy arrays
-            color_image = np.asanyarray(color_frame.get_data())
-
-            # Optional: Resize for Wrist System Camera models if you want to do it at the edge
-            # color_image = cv2.resize(color_image, (256, 256))
+            # Get raw YUYV buffer from RealSense (instant, no software conversion overhead!)
+            raw_data = np.asanyarray(color_frame.get_data(), dtype=np.uint8)
+            
+            # PyRealSense returns a flat array for YUYV, reshape it to (height, width, 2 channels)
+            yuyv_image = raw_data.reshape((720, 1280, 2))
+            
+            # Use OpenCV's NEON-optimized conversion to BGR (takes <10ms on Pi)
+            bgr_image = cv2.cvtColor(yuyv_image, cv2.COLOR_YUV2BGR_YUYV)
 
             # Convert OpenCV image to ROS Image message manually to bypass cv_bridge bug
             msg = Image()
             msg.header.stamp = self.get_clock().now().to_msg()
             msg.header.frame_id = "camera_color_optical_frame"
-            msg.height = color_image.shape[0]
-            msg.width = color_image.shape[1]
-            msg.encoding = "rgb8"
+            msg.height = 720
+            msg.width = 1280
+            msg.encoding = "bgr8"
             msg.is_bigendian = 0
-            msg.step = color_image.shape[1] * 3
-            msg.data = color_image.tobytes()
+            msg.step = 1280 * 3
+            msg.data = bgr_image.tobytes()
             
-            # self.publisher_.publish(msg)  # <-- COMMENTED OUT AGAIN TO ISOLATE PUBLISH vs TOBYTES
+            self.publisher_.publish(msg)
             
             # Calculate and log internal FPS every 30 frames
             self.frame_count += 1

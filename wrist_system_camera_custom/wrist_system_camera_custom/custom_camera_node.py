@@ -29,7 +29,18 @@ class RealSenseNode(Node):
 
         # Start streaming
         self.get_logger().info("Starting RealSense pipeline...")
-        self.pipeline.start(config)
+        profile = self.pipeline.start(config)
+
+        # Disable Auto-Exposure Priority to enforce a constant 30 FPS.
+        # Otherwise, RealSense drops the framerate in low-light environments.
+        try:
+            device = profile.get_device()
+            for sensor in device.query_sensors():
+                if sensor.supports(rs.option.auto_exposure_priority):
+                    sensor.set_option(rs.option.auto_exposure_priority, 0)
+                    self.get_logger().info("Disabled auto-exposure priority.")
+        except Exception as e:
+            self.get_logger().warn(f"Could not disable auto-exposure priority: {e}")
 
         # Timer to read and publish frames
         # 30 fps = 1/30 seconds ~ 0.0333

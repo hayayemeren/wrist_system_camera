@@ -76,17 +76,13 @@ class RealSenseNode(Node):
             if not color_frame:
                 return
 
-            t0 = self.get_clock().now()
-            
             # Get raw YUYV buffer from RealSense
             raw_data = np.asanyarray(color_frame.get_data())
             raw_data_bytes = raw_data.view(np.uint8)
             yuyv_image = raw_data_bytes.reshape((720, 1280, 2))
-            t1 = self.get_clock().now()
             
             # Convert to BGR
             bgr_image = cv2.cvtColor(yuyv_image, cv2.COLOR_YUV2BGR_YUYV)
-            t2 = self.get_clock().now()
 
             msg = Image()
             msg.header.stamp = t_start.to_msg()
@@ -100,10 +96,8 @@ class RealSenseNode(Node):
             # Use array.array to bypass ROS 2 Python's horrible 'assert all()' setter loop!
             # Assigning raw bytes triggers a python loop over 2.7M elements taking 900ms.
             msg.data = array.array('B', bgr_image.tobytes())
-            t3 = self.get_clock().now()
             
             self.publisher_.publish(msg)
-            t4 = self.get_clock().now()
             
             # Calculate and log internal FPS every 30 frames
             self.frame_count += 1
@@ -111,14 +105,6 @@ class RealSenseNode(Node):
                 now = self.get_clock().now()
                 elapsed = (now - self.start_time).nanoseconds / 1e9
                 self.get_logger().info(f"Internal capture rate: {30 / elapsed:.2f} FPS")
-                
-                dt0 = (t0 - t_start).nanoseconds / 1e6
-                dt1 = (t1 - t0).nanoseconds / 1e6
-                dt2 = (t2 - t1).nanoseconds / 1e6
-                dt3 = (t3 - t2).nanoseconds / 1e6
-                dt4 = (t4 - t3).nanoseconds / 1e6
-                
-                self.get_logger().info(f"PROFILING (ms): setup={dt0:.1f}, get_data={dt1:.1f}, cvtColor={dt2:.1f}, tobytes={dt3:.1f}, publish={dt4:.1f}")
                 self.start_time = now
                 
         except Exception as e:

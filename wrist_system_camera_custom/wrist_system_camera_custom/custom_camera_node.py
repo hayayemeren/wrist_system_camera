@@ -6,6 +6,7 @@ from cv_bridge import CvBridge
 import pyrealsense2 as rs
 import numpy as np
 import cv2
+import threading
 
 class RealSenseNode(Node):
     def __init__(self):
@@ -60,12 +61,13 @@ class RealSenseNode(Node):
         self.frame_count = 0
         self.start_time = self.get_clock().now()
 
-        # Timer to read and publish frames
-        # 30 fps = 1/30 seconds ~ 0.0333
-        self.timer = self.create_timer(1.0 / 30.0, self.timer_callback)
+        # Start a dedicated thread for reading frames to avoid ROS 2 timer blocking on ARM
+        self.capture_thread = threading.Thread(target=self.capture_loop, daemon=True)
+        self.capture_thread.start()
 
-    def timer_callback(self):
-        try:
+    def capture_loop(self):
+        while rclpy.ok():
+            try:
             # Wait for a coherent pair of frames: depth and color
             frames = self.pipeline.wait_for_frames()
             color_frame = frames.get_color_frame()
@@ -89,7 +91,7 @@ class RealSenseNode(Node):
             msg.step = color_image.shape[1] * 3
             msg.data = color_image.tobytes()
             
-            # self.publisher_.publish(msg)  # <-- COMMENTED OUT FOR TESTING
+            self.publisher_.publish(msg)
             
             # Calculate and log internal FPS every 30 frames
             self.frame_count += 1

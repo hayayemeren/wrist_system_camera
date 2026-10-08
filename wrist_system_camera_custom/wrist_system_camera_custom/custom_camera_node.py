@@ -68,43 +68,43 @@ class RealSenseNode(Node):
     def capture_loop(self):
         while rclpy.ok():
             try:
-            # Wait for a coherent pair of frames: depth and color
-            frames = self.pipeline.wait_for_frames()
-            color_frame = frames.get_color_frame()
-            if not color_frame:
-                return
+                # Wait for a coherent pair of frames: depth and color
+                frames = self.pipeline.wait_for_frames()
+                color_frame = frames.get_color_frame()
+                if not color_frame:
+                    continue
 
-            # Convert images to numpy arrays
-            color_image = np.asanyarray(color_frame.get_data())
+                # Convert images to numpy arrays
+                color_image = np.asanyarray(color_frame.get_data())
 
-            # Optional: Resize for Wrist System Camera models if you want to do it at the edge
-            # color_image = cv2.resize(color_image, (256, 256))
+                # Optional: Resize for Wrist System Camera models if you want to do it at the edge
+                # color_image = cv2.resize(color_image, (256, 256))
 
-            # Convert OpenCV image to ROS Image message manually to bypass cv_bridge bug
-            msg = Image()
-            msg.header.stamp = self.get_clock().now().to_msg()
-            msg.header.frame_id = "camera_color_optical_frame"
-            msg.height = color_image.shape[0]
-            msg.width = color_image.shape[1]
-            msg.encoding = "bgr8"
-            msg.is_bigendian = 0
-            msg.step = color_image.shape[1] * 3
-            msg.data = color_image.tobytes()
-            
-            self.publisher_.publish(msg)
-            
-            # Calculate and log internal FPS every 30 frames
-            self.frame_count += 1
-            if self.frame_count % 30 == 0:
-                now = self.get_clock().now()
-                elapsed = (now - self.start_time).nanoseconds / 1e9
-                self.get_logger().info(f"Internal capture rate: {30 / elapsed:.2f} FPS")
-                self.start_time = now
+                # Convert OpenCV image to ROS Image message manually to bypass cv_bridge bug
+                msg = Image()
+                msg.header.stamp = self.get_clock().now().to_msg()
+                msg.header.frame_id = "camera_color_optical_frame"
+                msg.height = color_image.shape[0]
+                msg.width = color_image.shape[1]
+                msg.encoding = "bgr8"
+                msg.is_bigendian = 0
+                msg.step = color_image.shape[1] * 3
+                msg.data = color_image.tobytes()
                 
-        except Exception as e:
-            import traceback
-            self.get_logger().error(f"Error reading frame: {e}")
-            self.get_logger().error(traceback.format_exc())
+                self.publisher_.publish(msg)
+                
+                # Calculate and log internal FPS every 30 frames
+                self.frame_count += 1
+                if self.frame_count % 30 == 0:
+                    now = self.get_clock().now()
+                    elapsed = (now - self.start_time).nanoseconds / 1e9
+                    self.get_logger().info(f"Internal capture rate: {30 / elapsed:.2f} FPS")
+                    self.start_time = now
+                    
+            except Exception as e:
+                import traceback
+                self.get_logger().error(f"Error reading frame: {e}")
+                self.get_logger().error(traceback.format_exc())
 
     def destroy_node(self):
         self.get_logger().info("Stopping RealSense pipeline...")

@@ -30,30 +30,3 @@ This package uses a raw Python script (`pyrealsense2` and `cv_bridge`) to fetch 
    ```
 This will publish the image to `/camera/color/image_raw`.
 
----
-
-## 2. Option 2: `wrist_system_camera_official` (Intel's Official Wrapper)
-
-This package is a launcher wrapper around Intel's official C++ node (`realsense2_camera`). It launches the official driver but explicitly configures it for Wrist System Camera by disabling the depth sensor (to save CPU) and fixing the RGB resolution to 1280x720 at 30 fps.
-
-**Pros:**
-- Maximum performance since the heavy lifting is done in optimized C++.
-- Less CPU usage on the Raspberry Pi 4.
-- Zero frame drops.
-
-**How to run it:**
-1. Install the official RealSense ROS 2 package:
-   ```bash
-   sudo apt install ros-humble-realsense2-camera
-   ```
-2. Build our custom launcher package:
-   ```bash
-   cd ~/ros2_ws
-   colcon build --packages-select wrist_system_camera_official
-   source install/setup.bash
-   ```
-3. Run the node:
-   ```bash
-   ros2 launch wrist_system_camera_official official_camera.launch.py
-   ```
-This will also publish the image to `/camera/color/image_raw` (among other standard topics).
